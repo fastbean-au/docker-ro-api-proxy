@@ -1,0 +1,6 @@
+.git/
+
+.vscode/
+
+Gruntfile.js
+.eslint.json

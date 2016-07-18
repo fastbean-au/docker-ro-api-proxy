@@ -1,4 +1,4 @@
-FROM fastbeanau/node-dood
+FROM node-dood-base
 
 COPY  . /application/
 
