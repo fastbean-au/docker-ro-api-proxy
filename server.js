@@ -26,34 +26,25 @@ const validRoutes = {
 // Docker request
 // -------------------------------------------------------------------------------------------------
 
+// Note: this does not accept (and thus does not call) a next middleware.
 function dockerRequest(req, res) {
   // Write the request to the console which will end up in the Docker logs for this container.
-  console.log(`${new Date()} ${req.ip}: ${req.originalUrl}`);
+  console.log(`${req.ip}: ${req.originalUrl}`);
 
-//  let body = '';
   docker.get(`http://unix/var/run/docker.sock:${req.originalUrl}`)
   .pipe(res);
-
-/*
-  .encoding('utf8')
-  .on('data', (data) => { body += data; })
-  .on('end', () => res.status(200).json(body))
-  .on('close', () => res.status(200).json(body))
-  .on('error', (err) => {
-    console.error(err);
-    res.status(500).json(err);
-  });
-*/
 }
 
 // -------------------------------------------------------------------------------------------------
 // URL route validation - ensure that the requested command is supported.
 // -------------------------------------------------------------------------------------------------
 function validateRoute(req, res, next) {
+  // Only fire the next middleware if the route is valid.
   if (! validRoutes.hasOwnProperty(req.params.route.toLowerCase())) {
-    res.send(404);
+    res.sendStatus(404);
+  } else {
+    next();
   }
-  next();
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -71,7 +62,7 @@ app.use(cors());
 
 app.get('/:route', (req, res, next) => validateRoute(req, res, next));
 
-app.get('/', (req, res) => dockerRequest(req, res));
+app.get('*', (req, res) => dockerRequest(req, res));
 
 // -------------------------------------------------------------------------------------------------
 // Send a 401 (unauthorised) for everything else (i.e. all other HTTP verbs).
