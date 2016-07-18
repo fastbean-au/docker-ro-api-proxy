@@ -1,0 +1,18 @@
+{
+    "env": {
+        "node": true
+    },
+    "extends": "airbnb",
+    "rules": {
+        "no-console": 0,
+        "max-len": 1,
+        "no-underscore-dangle": 1,
+        "space-in-parens": 1,
+        "no-trailing-spaces": 1,
+        "comma-spacing": 1,
+        "object-curly-spacing": 1,
+        "indent": 1,
+        "object-shorthand": ["error", "methods", { "avoidQuotes": true }],
+        "strict": "off"
+    }
+}

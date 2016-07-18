@@ -1,0 +1,8 @@
+{	
+  // Default to 2 spaces per tab
+  "editor.tabSize": 2,
+  // Insert spaces instead of hard tab.
+  "editor.insertSpaces": true,
+  // Match eslint rule for line-length
+  "editor.rulers": [100]
+}
