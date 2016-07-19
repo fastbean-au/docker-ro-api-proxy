@@ -1,6 +1,17 @@
-.git/
-
-.vscode/
+# dotted files and directories, including .git and .vscode 
+.*
 
 Gruntfile.js
-.eslint.json
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+
+# Dependency directory - build it in the container.
+node_modules
