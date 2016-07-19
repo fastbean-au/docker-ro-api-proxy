@@ -1,73 +1,35 @@
 'use strict';
 
-const express = require('express');
 const http = require('http');
-const cors = require('cors');
 const docker = require('request');
 
-// The supported calls to the Docker API - it's not necessary to do this, really, and it does create
-// a dependency on the version of the Docker host.
-const validRoutes = {
-  _ping: true,
-  containers: true,
-  events: true,
-  exec: true,
-  images: true,
-  info: true,
-  networks: true,
-  nodes: true,
-  services: true,
-  tasks: true,
-  version: true,
-  volumes: true,
-};
+const validPaths = /^\/(_ping|containers|events|exec|images|info|networks|nodes|services|tasks|version|volumes)([\/\?]|$)/i;
 
-// -------------------------------------------------------------------------------------------------
-// Docker request
-// -------------------------------------------------------------------------------------------------
-
-// Note: this does not accept (and thus does not call) a next middleware.
-function dockerRequest(req, res) {
-  // Write the request to the console which will end up in the Docker logs for this container.
-  console.log(`${req.ip}: ${req.originalUrl}`);
-
-  docker.get(`http://unix/var/run/docker.sock:${req.originalUrl}`)
-  .pipe(res);
-}
-
-// -------------------------------------------------------------------------------------------------
-// URL route validation - ensure that the requested command is supported.
-// -------------------------------------------------------------------------------------------------
-function validateRoute(req, res, next) {
-  // Only fire the next middleware if the route is valid.
-  if (! validRoutes.hasOwnProperty(req.params.route.toLowerCase())) {
-    res.sendStatus(404);
-  } else {
-    next();
-  }
+function endWithStatus(res, code) {
+  res.writeHead(code, http.STATUS_CODES[code]);
+  res.end(`${code} ${http.STATUS_CODES[code]}\r\n\r\n`);
 }
 
 // -------------------------------------------------------------------------------------------------
 // Initialise the HTTP server
 // -------------------------------------------------------------------------------------------------
 
-const app = express();
+http.createServer((req, res) => {
+  // Write the request to the console which will end up in the Docker logs for this container.
+  // The Docker logs are timestamped, so won't bother to add a timestamp here.
+  console.log(`${req.socket.address().address} | ${req.method} | ${req.url}`);
 
-// Set the port to the default Docker API port - we'll let the instantiator of the image determine
-// any required port mappings.
-app.set('port', 2375);
+  if (req.method === 'GET') {
+    if (req.url.match(validPaths)) {
+      docker.get(`http://unix/var/run/docker.sock:${req.url}`)
+      .pipe(res);
+    } else {
+      endWithStatus(res, 404);
+    }
+  } else {
+    endWithStatus(res, 401);
+  }
+})
+.listen(2375);
 
-// Allow cross-site
-app.use(cors());
-
-app.get('/:route', (req, res, next) => validateRoute(req, res, next));
-
-app.get('*', (req, res) => dockerRequest(req, res));
-
-// -------------------------------------------------------------------------------------------------
-// Send a 401 (unauthorised) for everything else (i.e. all other HTTP verbs).
-app.use((req, res) => {
-  res.sendStatus(401);
-});
-
-http.createServer(app).listen(app.get('port'));
+console.log('Server listening on local port 2375');
