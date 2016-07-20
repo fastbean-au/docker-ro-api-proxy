@@ -2,6 +2,7 @@
 
 const http = require('http');
 const docker = require('request');
+const dood = require('dood-utils');
 
 http.createServer((req, res) => {
   // Write the request to the console which will end up in the Docker logs for this container.
@@ -19,4 +20,6 @@ http.createServer((req, res) => {
 })
 .listen(2375);
 
-console.log('Server listening on local port 2375');
+dood.getHostPortMappings((err, ports) => {
+  console.log(`Server listening on local port ${ports['2375/tcp'][0].HostPort}`);
+});

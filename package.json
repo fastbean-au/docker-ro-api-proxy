@@ -25,6 +25,7 @@
     "url": "https://github.com/fastbean-au/docker-ro-api-proxy/issues"
   },
   "dependencies": {
+    "dood-utils": "^0.1.1",
     "http": "0.0.0",
     "request": "^2.73.0"
   },
