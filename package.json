@@ -1,6 +1,6 @@
 {
   "name": "docker-ro-api-proxy",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "A read-only proxy for the Docker API.",
   "main": "server.js",
   "private": true,
