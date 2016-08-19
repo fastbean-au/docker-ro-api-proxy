@@ -10,7 +10,14 @@ http.createServer((req, res) => {
   console.log(`${req.socket.address().address} | ${req.method} | ${req.url}`);
 
   if (req.method === 'GET') {
-    docker.get(`http://unix/var/run/docker.sock:${req.url}`)
+    docker.get(
+      {
+        url: `http://unix/var/run/docker.sock:${req.url}`,
+        headers: {
+          Host: '/var/run/docker.sock',
+        },
+      }
+    )
     .pipe(res);
   } else {
     const code = 401;
